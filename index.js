@@ -10,6 +10,21 @@ const firebaseConfig = {
     appId: "1:317824968239:web:875d9971ab5ed6dfbc08da"
 };
 
+const SELECTORS = {
+    PRODUCT_LOADING_OVERLAY: '#productLoadingOverlay',
+    PRODUCT_ADD_LOADING_OVERLAY: '#productAddLoadingOverlay',
+    PRODUCTS_CONTAINER: '#products-container',
+    PRODUCT_ADD_INPUT: {
+        MANUFACTURER: '#product-input-manufacturer',
+        MODEL: '#product-input-model',
+        PRICE: '#product-input-price',
+        YEAR: '#product-input-makeyear',
+        FEATURES_CONTAINER: '#product-input-features'
+    },
+    PRODUCT_ADD_FORM: '#product-form',
+    PRODUCT_ADD_FEATURE_BUTTON: '#product-input-features-add-btn'
+}
+
 const app = initializeApp(firebaseConfig)
 const firestore = getFirestore(app)
 
@@ -37,19 +52,19 @@ const createElement = ({ tag, className, textContent, customStyle, customAttribu
     return el
 }
 const showProductLoading = () => {
-    document.querySelector('#productLoadingOverlay').style.display = 'flex'
+    document.querySelector(SELECTORS.PRODUCT_LOADING_OVERLAY).style.display = 'flex'
 }
 
 const hideProductLoading = () => {
-    document.querySelector('#productLoadingOverlay').style.display = 'none'
+    document.querySelector(SELECTORS.PRODUCT_LOADING_OVERLAY).style.display = 'none'
 }
 
 const showAddProductLoading = () => {
-    document.querySelector('#productAddLoadingOverlay').style.display = 'flex'
+    document.querySelector(SELECTORS.PRODUCT_ADD_LOADING_OVERLAY).style.display = 'flex'
 }
 
 const hideAddProductLoading = () => {
-    document.querySelector('#productAddLoadingOverlay').style.display = 'none'
+    document.querySelector(SELECTORS.PRODUCT_ADD_LOADING_OVERLAY).style.display = 'none'
 }
 
 const getProducts = async () => {
@@ -61,26 +76,24 @@ const getProducts = async () => {
 }
 
 const updateProductsList = (products) => {
-    const productsContainer = document.querySelector('#products-container')
+    const productsContainer = document.querySelector(SELECTORS.PRODUCTS_CONTAINER)
     productsContainer.innerHTML = ''
 
     for (const product of products) {
-        const col = createElement({
-            tag: 'div',
-            className: 'col-lg-2 col-md-4 col-sm-12',
-            parent: productsContainer
-        })
-        const card = createElement({
-            tag: 'div',
-            className: 'card mt-4',
-            customStyle: 'height: 210px;',
-            parent: col
-        })
 
         const cardBody = createElement({
             tag: 'div',
             className: 'card-body',
-            parent: card
+            parent: createElement({
+                tag: 'div',
+                className: 'card mt-4',
+                customStyle: 'height: 210px;',
+                parent: createElement({
+                    tag: 'div',
+                    className: 'col-lg-2 col-md-4 col-sm-12',
+                    parent: productsContainer
+                })
+            })
         })
 
         createElement({
@@ -126,7 +139,7 @@ const updateProductsList = (products) => {
 }
 
 const addFeaturesInputRow = () => {
-    const featuresContainer = document.querySelector('#product-input-features')
+    const featuresContainer = document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.FEATURES_CONTAINER)
     createElement({
         tag: 'input',
         className: 'form-control mt-1',
@@ -138,11 +151,11 @@ const addFeaturesInputRow = () => {
 }
 
 const resetAddProductForm = () => {
-    document.querySelector('#product-input-manufacturer').value = ''
-    document.querySelector('#product-input-model').value = ''
-    document.querySelector('#product-input-price').value = ''
-    document.querySelector('#product-input-makeyear').value = ''
-    document.querySelector('#product-input-features').innerHTML = ''
+    document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.MANUFACTURER).value = ''
+    document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.MODEL).value = ''
+    document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.PRICE).value = ''
+    document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.YEAR).value = ''
+    document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.FEATURES_CONTAINER).innerHTML = ''
     addFeaturesInputRow()
 }
 
@@ -151,21 +164,21 @@ const handleFormSubmit = (e) => {
     showAddProductLoading()
 
     const newProduct = {
-        manufacturer: document.querySelector('#product-input-manufacturer').value,
-        model: document.querySelector('#product-input-model').value
+        manufacturer: document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.MANUFACTURER).value,
+        model: document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.MODEL).value
     }
 
-    const price = document.querySelector('#product-input-price').valueAsNumber
+    const price = document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.PRICE).valueAsNumber
     if (!Number.isNaN(price)) {
         newProduct.price = price
     }
 
-    const year = document.querySelector('#product-input-makeyear').value
+    const year = document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.YEAR).value
     if (typeof year === 'string' && year.length > 0) {
         newProduct.year = year
     }
 
-    const features = Array.from(document.querySelector('#product-input-features').children).map((el) => el.value).filter(val => val)
+    const features = Array.from(document.querySelector(SELECTORS.PRODUCT_ADD_INPUT.FEATURES_CONTAINER).children).map((el) => el.value).filter(val => val)
     if (features.length > 0) {
         newProduct.features = features
     }
@@ -183,6 +196,6 @@ const handleFormSubmit = (e) => {
 }
 
 // init
-document.querySelector('#product-form').addEventListener('submit', handleFormSubmit)
-document.querySelector('#product-input-features-add-btn').addEventListener('click', addFeaturesInputRow)
+document.querySelector(SELECTORS.PRODUCT_ADD_FORM).addEventListener('submit', handleFormSubmit)
+document.querySelector(SELECTORS.PRODUCT_ADD_FEATURE_BUTTON).addEventListener('click', addFeaturesInputRow)
 getProducts()
